@@ -1,3 +1,3 @@
 export default function App() {
-  return <h1>Meu projeto Electron</h1>
+  return <h1 style={{ fontFamily: 'Poppins' }}>Meu projeto Electron</h1>
 }
