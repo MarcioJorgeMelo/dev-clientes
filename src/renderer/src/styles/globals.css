@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@font-face {
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: 400 500 600 700;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+}
+
+@theme {
+  --font-poppins: Poppins, 'sans-serif';
+}
+
+@layer base {
+  body {
+    @apply font-poppins;
+  }
+}
