@@ -11,6 +11,28 @@
 
 @theme {
   --font-poppins: Poppins, 'sans-serif';
+  --animate-slideIn: slideIn 0.28s ease-out;
+  --animate-slideOut: slideOut 0.28s ease-in;
+
+  @keyframes slideIn {
+    from: {
+      width: '0';
+    }
+    ,
+    to: {
+      width: 'var(--radix-collapsible-content-width)';
+    }
+  }
+
+  @keyframes slideOut {
+    from: {
+      width: 'var(--radix-collapsible-content-width)';
+    }
+    ,
+    to: {
+      width: '0';
+    }
+  }
 }
 
 @layer base {
