@@ -38,3 +38,34 @@ ipcMain.handle('add-customer', async (event, doc: Customer) => {
 
   return result
 })
+
+async function fetchAllCustomers(): Promise<Customer[]> {
+  try {
+    const result = await db.allDocs({ include_docs: true })
+
+    return result.rows.map((row) => row.doc as Customer)
+  } catch (error) {
+    console.log('Erro ao buscar ', error)
+    return []
+  }
+}
+
+ipcMain.handle('fetch-all-customers', async () => {
+  return await fetchAllCustomers()
+})
+
+async function fetchCustomerByID(docId: string) {
+  return db
+    .get(docId)
+    .then((doc) => doc)
+    .catch((err) => {
+      console.log('Erro ao buscar pelo id ', err)
+      return null
+    })
+}
+
+ipcMain.handle('fetch-customer-id', async (event, docId) => {
+  const result = await fetchCustomerByID(docId)
+
+  return result
+})
