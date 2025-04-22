@@ -15,6 +15,14 @@ export function Home() {
     console.log(response)
   }
 
+  async function deleteCustomerById() {
+    const docId = 'af68ab77-0d44-4771-a254-be35a43f1bbe'
+
+    const response = await window.api.deleteCustomerById(docId)
+
+    console.log(response)
+  }
+
   return (
     <div>
       <h1>Página home</h1>
@@ -28,6 +36,10 @@ export function Home() {
       <br />
 
       <button onClick={handleCustomerById}>Buscar usuário pelo Id</button>
+
+      <br />
+
+      <button onClick={deleteCustomerById}>Deletar usuário pelo Id</button>
     </div>
   )
 }
