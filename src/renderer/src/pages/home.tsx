@@ -24,7 +24,7 @@ export function Home() {
   //   console.log(response)
   // }
 
-  const { data } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ['customers'],
     queryFn: async () => {
       const response = await window.api.fetchAllCustomers()
@@ -40,6 +40,9 @@ export function Home() {
       </div>
 
       <section className="flex flex-col w-full h-screen gap-6 px-10">
+        {!isFetching && data?.length === 0 && (
+          <p className="text-gray-300">Nenhum cliente cadastrado...</p>
+        )}
         {data?.map((customer) => (
           <Link
             to={`/customer/${customer._id}`}
