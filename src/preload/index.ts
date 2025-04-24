@@ -26,7 +26,8 @@ const api = {
   fetchAllCustomers: (): Promise<Customer[]> => ipcRenderer.invoke('fetch-all-customers'),
   fetchCustomerById: (docId: string): Promise<Customer> =>
     ipcRenderer.invoke('fetch-customer-id', docId),
-  deleteCustomerById: (docId: string) => ipcRenderer.invoke('delete-customer-id', docId)
+  deleteCustomerById: (docId: string) => ipcRenderer.invoke('delete-customer-id', docId),
+  getVersionApp: () => ipcRenderer.invoke('get-version')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
