@@ -41,7 +41,11 @@ export function Home() {
 
       <section className="flex flex-col w-full h-screen gap-6 px-10">
         {data?.map((customer) => (
-          <Link to="/" key={customer._id} className="bg-gray-800 px-4 py-3 rounded">
+          <Link
+            to={`/customer/${customer._id}`}
+            key={customer._id}
+            className="bg-gray-800 px-4 py-3 rounded"
+          >
             <p className="mb-2 font-semibold text-lg">{customer.name}</p>
 
             <p>
