@@ -34,12 +34,12 @@ export function Home() {
   })
 
   return (
-    <div className="flex-1 flex flex-col py-12 text-white">
+    <div className="flex-1 flex flex-col py-12 text-white overflow-y-auto">
       <div className="px-10">
         <h1 className="text-white text-xl font-semibold mb-4 lg:text-3xl">Todos clientes</h1>
       </div>
 
-      <section className="flex flex-col w-full h-screen gap-6 overflow-y-auto px-10">
+      <section className="flex flex-col w-full h-screen gap-6 px-10">
         {data?.map((customer) => (
           <Link to="/" key={customer._id} className="bg-gray-800 px-4 py-3 rounded">
             <p className="mb-2 font-semibold text-lg">{customer.name}</p>
