@@ -1,45 +1,63 @@
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 
 export function Home() {
-  async function handleAdd() {
-    const response = await window.api.fetchAllCustomers()
+  // async function handleAdd() {
+  //   const response = await window.api.fetchAllCustomers()
 
-    console.log(response)
-  }
+  //   console.log(response)
+  // }
 
-  async function handleCustomerById() {
-    const docId = '2bea016c-fb1c-4e68-960c-d8406975fc17'
+  // async function handleCustomerById() {
+  //   const docId = '2bea016c-fb1c-4e68-960c-d8406975fc17'
 
-    const response = await window.api.fetchCustomerById(docId)
+  //   const response = await window.api.fetchCustomerById(docId)
 
-    console.log(response)
-  }
+  //   console.log(response)
+  // }
 
-  async function deleteCustomerById() {
-    const docId = 'af68ab77-0d44-4771-a254-be35a43f1bbe'
+  // async function deleteCustomerById() {
+  //   const docId = 'af68ab77-0d44-4771-a254-be35a43f1bbe'
 
-    const response = await window.api.deleteCustomerById(docId)
+  //   const response = await window.api.deleteCustomerById(docId)
 
-    console.log(response)
-  }
+  //   console.log(response)
+  // }
+
+  const { data } = useQuery({
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const response = await window.api.fetchAllCustomers()
+
+      return response
+    }
+  })
 
   return (
-    <div>
-      <h1>Página home</h1>
+    <div className="flex-1 flex flex-col py-12 text-white">
+      <div className="px-10">
+        <h1 className="text-white text-xl font-semibold mb-4 lg:text-3xl">Todos clientes</h1>
+      </div>
 
-      <Link to="/create">Ir para create</Link>
-      <br />
-      <br />
+      <section className="flex flex-col w-full h-screen gap-6 overflow-y-auto px-10">
+        {data?.map((customer) => (
+          <Link to="/" key={customer._id} className="bg-gray-800 px-4 py-3 rounded">
+            <p className="mb-2 font-semibold text-lg">{customer.name}</p>
 
-      <button onClick={handleAdd}>Buscar usuários</button>
+            <p>
+              <span className="font-semibold">Email: </span>
+              {customer.email}
+            </p>
 
-      <br />
-
-      <button onClick={handleCustomerById}>Buscar usuário pelo Id</button>
-
-      <br />
-
-      <button onClick={deleteCustomerById}>Deletar usuário pelo Id</button>
+            {customer.phone && (
+              <p>
+                <span className="font-semibold">Telefone: </span>
+                {customer.phone}
+              </p>
+            )}
+          </Link>
+        ))}
+      </section>
     </div>
   )
 }
