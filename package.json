@@ -17,7 +17,8 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
-    "release": "electron-builder --publish always"
+    "release": "electron-builder --publish always",
+    "dist": "npm run build && electron-builder"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
