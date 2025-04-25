@@ -1,39 +1,54 @@
 on:
   push:
-    tags: ['*']
+    tags: ['v*']
 
 jobs:
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Node.js, NPM and Yarn
+      - name: Install Node.js 20
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
+          cache: 'npm'
 
-      - name: apt-update
-        if: startsWith(matrix.os, 'ubuntu-latest')
-        run: sudo apt-get update
+      - name: Install Linux build deps
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3 g++ make
 
-      - name: autoremove
-        if: startsWith(matrix.os, 'ubuntu-latest')
-        run: sudo apt autoremove
+      - name: Install distutils on macOS
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew install python@3.11
+          python3 -m ensurepip
+          python3 -m pip install setuptools
 
-      - name: Install libarchive rpm on Linux
-        if: startsWith(matrix.os, 'ubuntu-latest')
-        run: sudo apt-get install libarchive-tools rpm
+      - name: Install dependencies
+        run: npm install
 
-      - name: Release Electron app
+      - name: Extra deps for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libarchive-tools rpm
+
+      - name: Disable symlink creation
+        if: startsWith(matrix.os, 'windows')
+        run: git config --global core.symlinks false
+
+      - name: Build and Release
         uses: samuelmeuli/action-electron-builder@v1
         with:
-          github_token: ${{ secrets.github_token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           release: true
+          build_script_name: dist
+          args: --windows nsis:portable
