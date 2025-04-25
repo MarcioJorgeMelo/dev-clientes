@@ -15,10 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
+          node-version: 20
 
       - name: apt-update
         if: startsWith(matrix.os, 'ubuntu-latest')
