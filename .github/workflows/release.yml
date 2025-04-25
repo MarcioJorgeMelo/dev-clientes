@@ -1,54 +1,57 @@
+name: Release
+
 on:
   push:
-    tags: ['v*']
+    tags:
+      - 'v*.*.*'
 
 jobs:
   release:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Node.js 20
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Linux build deps
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential python3 g++ make
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Install distutils on macOS
+      - name: Set up Python (macOS only)
         if: startsWith(matrix.os, 'macos')
         run: |
-          brew install python@3.11
-          python3 -m ensurepip
-          python3 -m pip install setuptools
+          python3 -m venv venv
+          source venv/bin/activate
+          python3 -m pip install -U pip setuptools wheel
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install build tools (Ubuntu only)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: sudo apt-get update && sudo apt-get install -y build-essential python3 python3-pip python3-venv
 
-      - name: Extra deps for Linux
-        if: matrix.os == 'ubuntu-latest'
+      - name: Set up Python (Ubuntu only)
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libarchive-tools rpm
+          python3 -m venv venv
+          source venv/bin/activate
+          python3 -m pip install -U pip setuptools wheel
 
-      - name: Disable symlink creation
-        if: startsWith(matrix.os, 'windows')
-        run: git config --global core.symlinks false
+      - name: Install app dependencies (Electron native deps)
+        run: npx electron-builder install-app-deps
 
-      - name: Build and Release
-        uses: samuelmeuli/action-electron-builder@v1
+      - name: Build app
+        run: npm run build
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          release: true
-          build_script_name: dist
-          args: --windows nsis:portable
+          files: dist/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
