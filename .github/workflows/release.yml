@@ -1,57 +1,39 @@
-name: Release
-
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    tags: ['*']
 
 jobs:
   release:
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 18
 
-      - name: Install dependencies
-        run: npm ci
+      - name: apt-update
+        if: startsWith(matrix.os, 'ubuntu-latest')
+        run: sudo apt-get update
 
-      - name: Set up Python (macOS only)
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          python3 -m pip install -U pip setuptools wheel
+      - name: autoremove
+        if: startsWith(matrix.os, 'ubuntu-latest')
+        run: sudo apt autoremove
 
-      - name: Install build tools (Ubuntu only)
-        if: startsWith(matrix.os, 'ubuntu')
-        run: sudo apt-get update && sudo apt-get install -y build-essential python3 python3-pip python3-venv
+      - name: Install libarchive rpm on Linux
+        if: startsWith(matrix.os, 'ubuntu-latest')
+        run: sudo apt-get install libarchive-tools rpm
 
-      - name: Set up Python (Ubuntu only)
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          python3 -m pip install -U pip setuptools wheel
-
-      - name: Install app dependencies (Electron native deps)
-        run: npx electron-builder install-app-deps
-
-      - name: Build app
-        run: npm run build
-
-      - name: Create release
-        uses: softprops/action-gh-release@v1
+      - name: Release Electron app
+        uses: samuelmeuli/action-electron-builder@v1
         with:
-          files: dist/**/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.github_token }}
+          release: true
