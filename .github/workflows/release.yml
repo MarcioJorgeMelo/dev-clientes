@@ -13,10 +13,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Install Node.js 20
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Linux build deps
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3 g++ make
+
+      - name: Install distutils on macOS
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew install python@3.11
+          python3 -m ensurepip
+          python3 -m pip install setuptools
 
       - name: Install dependencies
         run: npm install
@@ -27,9 +41,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libarchive-tools rpm
 
+      - name: Disable symlink creation
+        if: startsWith(matrix.os, 'windows')
+        run: git config --global core.symlinks false
+
       - name: Build and Release
         uses: samuelmeuli/action-electron-builder@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release: true
           build_script_name: dist
+          args: --windows nsis:portable
